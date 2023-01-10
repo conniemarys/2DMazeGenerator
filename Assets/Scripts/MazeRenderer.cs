@@ -36,48 +36,6 @@ public class MazeRenderer : MonoBehaviour
 
     IEnumerator Draw(List<Cell> maze)
     {
-        /* for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                var cell = maze[x, y];
-                var position = new Vector3(-width / 2 + x, -height / 2 + y);
-
-                if(cell.HasFlag(WallSides.Up))
-                {
-                    var topWall = Instantiate(wallPrefab, transform) as Transform;
-                    topWall.position = position + new Vector3(0, size / 2);
-                }
-
-                if(cell.HasFlag(WallSides.Left))
-                {
-                    var leftWall = Instantiate(wallPrefab, transform) as Transform;
-                    leftWall.position = position + new Vector3(-size / 2, 0);
-                    leftWall.eulerAngles = new Vector3(0, 0, 90);
-                }
-
-                if(x == width - 1)
-                {
-                    if(cell.HasFlag(WallSides.Right))
-                    {
-                        var rightWall = Instantiate(wallPrefab, transform) as Transform;
-                        rightWall.position = position + new Vector3(size / 2, 0);
-                        rightWall.eulerAngles = new Vector3(0, 0, 90);
-                    }
-                }
-
-                if(y == 0)
-                {
-                    if(cell.HasFlag(WallSides.Down))   
-                    {
-                        var bottomWall = Instantiate(wallPrefab, transform) as Transform;
-                        bottomWall.position = position + new Vector3(0, -size / 2);
-                    }
-                }
-                yield return new WaitForSeconds(0.1f);
-            }
-        } */
-
         foreach (Cell cell in maze)
         {
             var cellWallSides = cell.CellWallSides;
