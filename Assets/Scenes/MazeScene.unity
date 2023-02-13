@@ -239,6 +239,8 @@ MonoBehaviour:
   width: 10
   height: 10
   wallPrefab: {fileID: 3305143354074023782, guid: 1ef93e9e14a984fc8abfcfab029ffd19, type: 3}
+  parent: {fileID: 6474325479117386185, guid: 434f7a09677864577beb4db4522a33e7, type: 3}
+  floorPrefab: {fileID: 973442104632112960, guid: ad1b914d851db4ac1a7c8aeb03eb9a92, type: 3}
 --- !u!4 &688473832
 Transform:
   m_ObjectHideFlags: 0
