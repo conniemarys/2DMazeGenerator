@@ -1,19 +1,11 @@
 {
   "dependencies": {
     "com.unity.2d.animation": {
-<<<<<<< HEAD
       "version": "7.0.8",
       "depth": 1,
       "source": "registry",
       "dependencies": {
         "com.unity.2d.common": "6.0.5",
-=======
-      "version": "7.0.9",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.2d.common": "6.0.6",
->>>>>>> e6680251d3745082af85a2319678cab0523a1210
         "com.unity.2d.sprite": "1.0.0",
         "com.unity.modules.animation": "1.0.0",
         "com.unity.modules.uielements": "1.0.0"
@@ -21,11 +13,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.2d.common": {
-<<<<<<< HEAD
       "version": "6.0.5",
-=======
-      "version": "6.0.6",
->>>>>>> e6680251d3745082af85a2319678cab0523a1210
       "depth": 2,
       "source": "registry",
       "dependencies": {
@@ -44,7 +32,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.2d.pixel-perfect": {
-      "version": "5.0.3",
+      "version": "5.0.1",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
@@ -107,11 +95,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.collab-proxy": {
-<<<<<<< HEAD
       "version": "1.17.6",
-=======
-      "version": "1.17.7",
->>>>>>> e6680251d3745082af85a2319678cab0523a1210
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -131,13 +115,8 @@
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-<<<<<<< HEAD
         "com.unity.2d.animation": "7.0.8",
         "com.unity.2d.pixel-perfect": "5.0.1",
-=======
-        "com.unity.2d.animation": "7.0.9",
-        "com.unity.2d.pixel-perfect": "5.0.3",
->>>>>>> e6680251d3745082af85a2319678cab0523a1210
         "com.unity.2d.psdimporter": "6.0.6",
         "com.unity.2d.sprite": "1.0.0",
         "com.unity.2d.spriteshape": "7.0.6",
@@ -146,7 +125,7 @@
       }
     },
     "com.unity.ide.rider": {
-      "version": "3.0.16",
+      "version": "3.0.15",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -185,11 +164,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.services.core": {
-<<<<<<< HEAD
       "version": "1.5.2",
-=======
-      "version": "1.6.0",
->>>>>>> e6680251d3745082af85a2319678cab0523a1210
       "depth": 1,
       "source": "registry",
       "dependencies": {
