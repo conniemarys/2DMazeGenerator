@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.UIElements;
 
 [Flags]
 public enum WallSides
@@ -23,6 +24,11 @@ public struct Cell
 {
     public Position CellPosition;
     public WallSides CellWallSides;
+    public int hValue;
+    public int gValue;
+    public int fValue;
+    public int prevCellX;
+    public int prevCellY;
 }
 
 public struct Neighbour
@@ -69,7 +75,7 @@ public static class MazeGenerator
 
         //A stack is a simple last-in-first-out non-generic collection of objects
         var positionStack = new Stack<Position>();
-        var position = new Position { X = rnd.Next(0, width), Y = rnd.Next(0, height) };
+        var position = new Position { X = 0, Y = 0};
 
         List<Cell> generateOrder = new List<Cell>();
 
@@ -78,11 +84,46 @@ public static class MazeGenerator
         //makes the current position the only thing in the stack
         positionStack.Push(position);
 
+        bool prevNoNeighbours = false;
+
         while (positionStack.Count > 0)
         {
             //Pop() removes and returns the first instance of the stack
             //the first time, there will only be one instance in the stack
             var current = positionStack.Pop();
+
+            if(prevNoNeighbours)
+            {
+                prevNoNeighbours = false;
+                var visitedNeighbours = GetVisitedNeighbours(current, maze, width, height);
+
+                if(visitedNeighbours.Count > 0)
+                {
+                    var randIndex = rnd.Next(0, visitedNeighbours.Count);
+                    var randomVisitedNeighbour = visitedNeighbours[randIndex];
+                    var vNPosition = randomVisitedNeighbour.Position;
+
+                    maze[current.X, current.Y] &= ~randomVisitedNeighbour.SharedWall;
+                    maze[vNPosition.X, vNPosition.Y] &= ~GetOppositeWall(randomVisitedNeighbour.SharedWall);
+
+                    Cell newNeighbourCell = new Cell
+                    {
+                        CellPosition = vNPosition,
+                        CellWallSides = maze[vNPosition.X, vNPosition.Y]
+                    };
+
+                    for(int i = 0; i < generateOrder.Count; i++)
+                    {
+                        if (generateOrder[i].CellPosition.X == newNeighbourCell.CellPosition.X && generateOrder[i].CellPosition.Y == newNeighbourCell.CellPosition.Y)
+                        {
+                            generateOrder[i] = newNeighbourCell;
+                        }
+
+                    }
+                   
+                }
+            }
+
             var neighbours = GetUnvisitedNeighbours(current, maze, width, height);
 
             if(neighbours.Count > 0)
@@ -91,6 +132,7 @@ public static class MazeGenerator
                 positionStack.Push(current);
 
                 var randIndex = rnd.Next(0, neighbours.Count);
+
                 var randomNeighbour = neighbours[randIndex];
 
                 var nPosition = randomNeighbour.Position;
@@ -105,6 +147,10 @@ public static class MazeGenerator
                 positionStack.Push(nPosition);
 
             }
+            else if(neighbours.Count == 0)
+            {
+                prevNoNeighbours = true;
+            }
 
             Cell cell = new Cell
             {
@@ -118,7 +164,7 @@ public static class MazeGenerator
         return generateOrder;
     }
 
-    private static WallSides GetOppositeWall(WallSides wall)
+    public static WallSides GetOppositeWall(WallSides wall)
     {
         switch(wall)
         {
@@ -200,4 +246,76 @@ public static class MazeGenerator
 
         return list;
     }
+
+    private static List<Neighbour> GetVisitedNeighbours(Position p, WallSides[,] maze, int width, int height)
+    {
+        var list = new List<Neighbour>();
+
+        if (p.X > 0)
+        {
+            if (maze[p.X - 1, p.Y].HasFlag(WallSides.Visited))
+            {
+                list.Add(new Neighbour
+                {
+                    Position = new Position
+                    {
+                        X = p.X - 1,
+                        Y = p.Y
+                    },
+                    SharedWall = WallSides.Left
+                });
+            }
+        }
+
+        if (p.Y > 0)
+        {
+            if (maze[p.X, p.Y - 1].HasFlag(WallSides.Visited))
+            {
+                list.Add(new Neighbour
+                {
+                    Position = new Position
+                    {
+                        X = p.X,
+                        Y = p.Y - 1
+                    },
+                    SharedWall = WallSides.Down
+                });
+            }
+        }
+
+        if (p.Y < height - 1)
+        {
+            if (maze[p.X, p.Y + 1].HasFlag(WallSides.Visited))
+            {
+                list.Add(new Neighbour
+                {
+                    Position = new Position
+                    {
+                        X = p.X,
+                        Y = p.Y + 1
+                    },
+                    SharedWall = WallSides.Up
+                });
+            }
+        }
+
+        if (p.X < width - 1)
+        {
+            if (maze[p.X + 1, p.Y].HasFlag(WallSides.Visited))
+            {
+                list.Add(new Neighbour
+                {
+                    Position = new Position
+                    {
+                        X = p.X + 1,
+                        Y = p.Y
+                    },
+                    SharedWall = WallSides.Right
+                });
+            }
+        }
+
+        return list;
+    }
+
 }

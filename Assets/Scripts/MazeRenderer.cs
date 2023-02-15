@@ -23,14 +23,40 @@ public class MazeRenderer : MonoBehaviour
     [SerializeField]
     private Transform floorPrefab = null;
 
+    private AStarPathfinding pathfindingManager;
+
+    private System.Random random;
+
+    public class Changes
+    {
+        public int X;
+        public int Y;
+        public WallSides wallSides;
+
+        public Changes(int X, int Y, WallSides wallSides)
+        {
+            this.X = X;
+            this.Y = Y;
+            this.wallSides = wallSides;
+        }
+    }
+
     private void Start()
     {
+        pathfindingManager = new AStarPathfinding();
+
+        random = new System.Random();
+
         Camera.main.transform.position = new Vector3(width / 2, height / 2 - 1, - 10);
         Camera.main.orthographicSize = Mathf.Pow(height, 0.8f);
         var emptyMaze = MazeGenerator.GenerateEmpty(width, height);
         //DrawEmpty(emptyMaze);
-        var maze = MazeGenerator.Generate(width, height);
-        StartCoroutine(Draw(maze));
+
+        List<Cell> mazeOrder = MazeGenerator.Generate(width, height);
+
+        pathfindingManager.AStar(mazeOrder, width, height);
+
+        StartCoroutine(Draw(mazeOrder));
     }
 
 
