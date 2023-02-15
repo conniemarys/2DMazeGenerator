@@ -12,7 +12,7 @@ public class MazeRenderer : MonoBehaviour
     [Range(1, 50)]
     private int height;
 
-    private float size = 1f;
+    static float size = 1f;
 
     [SerializeField]
     private Transform wallPrefab = null;
@@ -52,11 +52,14 @@ public class MazeRenderer : MonoBehaviour
         var emptyMaze = MazeGenerator.GenerateEmpty(width, height);
         //DrawEmpty(emptyMaze);
 
-        List<Cell> mazeOrder = MazeGenerator.Generate(width, height);
+        List<Cell> mazeOrder = new List<Cell>();
+        WallSides[,] aStarMap = new WallSides[width, height];
 
-        pathfindingManager.AStar(mazeOrder, width, height);
+        (mazeOrder, aStarMap) = MazeGenerator.Generate(width, height);
 
         StartCoroutine(Draw(mazeOrder));
+
+        pathfindingManager.AStar(aStarMap, width, height);
     }
 
 

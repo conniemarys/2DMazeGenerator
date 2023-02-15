@@ -5,22 +5,24 @@ using System.IO;
 using System.Runtime.ConstrainedExecution;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.UI;
 
 public class PathfindingCell
-{
-    public int X;
+{    public int X;
     public int Y;
     public int gValue;
     public int hValue;
     public int fValue;
     public PathfindingCell prevCell;
-    public Cell correspondingCell;
-    public PathfindingCell(int X, int Y, Cell cell)
+    public WallSides CellWallSides;
+
+    public PathfindingCell(int X, int Y, WallSides cellWallSides)
     {
         this.X = X;
         this.Y = Y;
         this.gValue = int.MaxValue;
-        this.correspondingCell = cell;
+        this.hValue = 0;
+        this.CellWallSides = cellWallSides;
     }
 }
 
@@ -30,27 +32,22 @@ public class AStarPathfinding
     private int height;
     private int width;
     PathfindingCell startCell;
+    public int count;
 
-    public List<PathfindingCell> AStar(List<Cell> mazeList, int inputWidth, int inputHeight)
+    public List<PathfindingCell> AStar(WallSides[,] mazeArray, int inputWidth, int inputHeight)
     {
-        Debug.Log(mazeList.Count);
-
-        foreach(Cell cell in mazeList) 
-        {
-            Debug.Log($"({cell.CellPosition.X}, {cell.CellPosition.Y})");
-        }
-
         maze = new PathfindingCell[inputWidth, inputHeight];
-        height = inputHeight; 
-        width = inputWidth;
 
-        foreach(Cell c in mazeList)
+        for (int x = 0; x < inputWidth; x++)
         {
-            maze[c.CellPosition.X, c.CellPosition.Y] = new PathfindingCell(c.CellPosition.X, c.CellPosition.Y, c);
+            for (int y = 0; y < inputHeight; y++)
+            {
+                maze[x, y] = new PathfindingCell(x, y, mazeArray[x, y]);
+            }
         }
 
         startCell = maze[0, 0];
-        PathfindingCell endCell = maze[width - 1, height - 1];
+        PathfindingCell endCell = maze[inputWidth - 1, inputHeight - 1];
 
         return FindPath(maze, startCell, endCell);
     }
@@ -58,19 +55,20 @@ public class AStarPathfinding
     public List<PathfindingCell> FindPath(PathfindingCell[,] maze, PathfindingCell startCell, PathfindingCell endCell)
     {
         List<PathfindingCell> exploredCells = new List<PathfindingCell>();
-        List<PathfindingCell> cellsToExplore = new List<PathfindingCell> { startCell };
 
         for (int x = 0; x < width; x++)
         {
-            for(int y = 0; y < height; y++)
+            for (int y = 0; y < height; y++)
             {
-                CalculateHCost(maze[x, y], endCell);
                 CalculateFCost(maze[x, y]);
                 maze[x, y].prevCell = null;
             }
         }
 
         startCell.gValue = 0;
+        CalculateHCost(startCell, endCell);
+
+        List<PathfindingCell> cellsToExplore = new List<PathfindingCell> { startCell };
 
         var path = RecursiveCall(cellsToExplore, exploredCells, endCell);
 
@@ -90,12 +88,13 @@ public class AStarPathfinding
 
     public List<PathfindingCell> RecursiveCall(List<PathfindingCell> cellsToExplore, List<PathfindingCell> exploredCells, PathfindingCell endCell)
     {
-        if(cellsToExplore.Count > 0)
+        if (cellsToExplore.Count > 0)
         {
             PathfindingCell currentCell = GetLowestFCost(cellsToExplore);
 
-            if(currentCell == endCell)
+            if (currentCell == endCell)
             {
+                Debug.Log("Reached successful end");
                 return CalculatePath(endCell);
             }
 
@@ -105,7 +104,7 @@ public class AStarPathfinding
             List<PathfindingCell> neighbours = FindNeighbours(currentCell);
 
             bool checkValid = false;
-            foreach(PathfindingCell neighbour in neighbours)
+            foreach (PathfindingCell neighbour in neighbours)
             {
                 if (!exploredCells.Contains(neighbour))
                 {
@@ -113,41 +112,41 @@ public class AStarPathfinding
                 }
             }
 
-            if (!checkValid)
+            if (checkValid)
             {
-                return null;
-            }
+                int validCount = 0;
 
-            foreach (PathfindingCell neighbour in neighbours)
-            {
-                if (exploredCells.Contains(neighbour))
+                foreach (PathfindingCell neighbour in neighbours)
                 {
-                    continue;
-                }
-
-                int tentativeGValue = currentCell.gValue + 1;
-
-                if(tentativeGValue < neighbour.gValue)
-                {
-                    neighbour.prevCell = currentCell;
-                    neighbour.gValue= tentativeGValue;
-                    CalculateHCost(neighbour, endCell);
-                    CalculateFCost(neighbour);
-                    if(!cellsToExplore.Contains(neighbour)) 
+                    if (!exploredCells.Contains(neighbour))
                     {
-                        cellsToExplore.Add(neighbour);
-                        
-                    }
-                }   
-            }
+                        validCount++;
+                        int tentativeGValue = currentCell.gValue + 1;
 
+                        if (tentativeGValue < neighbour.gValue)
+                        {
+                            neighbour.prevCell = currentCell;
+                            neighbour.gValue = tentativeGValue;
+                            CalculateHCost(neighbour, endCell);
+                            CalculateFCost(neighbour);
+
+                            cellsToExplore.Add(neighbour);
+                        }
+                    }
+
+                }
+                
+                Debug.Log($"Cell: [{currentCell.X}, {currentCell.Y}] with walls {currentCell.CellWallSides} found {neighbours.Count} neighbours, {validCount} valid. Cells to Explore: {cellsToExplore.Count}");
+
+            }
+            
             return RecursiveCall(cellsToExplore, exploredCells, endCell);
         }
 
+        Debug.Log($"Failed count check. return null. Cells to Explore: {cellsToExplore.Count}");
         return null;
 
     }
-
     public List<PathfindingCell> CalculatePath(PathfindingCell currentCell, List<PathfindingCell> path = null)
     {
         if (path == null)
@@ -171,7 +170,7 @@ public class AStarPathfinding
     {
         PathfindingCell lowestFCost = cellsToExplore[0];
 
-        for(int i = 0; i < cellsToExplore.Count; i++)
+        for (int i = 0; i < cellsToExplore.Count; i++)
         {
             if (cellsToExplore[i].fValue < lowestFCost.fValue)
             {
@@ -186,23 +185,24 @@ public class AStarPathfinding
     public List<PathfindingCell> FindNeighbours(PathfindingCell cell)
     {
         List<PathfindingCell> result = new List<PathfindingCell>();
-        if (cell.correspondingCell.CellWallSides.HasFlag(WallSides.Left) && cell.X != width - 1)
-        {
-            result.Add(maze[cell.X + 1, cell.Y]);
 
-        }
-        if (cell.correspondingCell.CellWallSides.HasFlag(WallSides.Right) && cell.X != 0)
+        if (!cell.CellWallSides.HasFlag(WallSides.Left))
         {
-           
             result.Add(maze[cell.X - 1, cell.Y]);
 
         }
-        if (cell.correspondingCell.CellWallSides.HasFlag(WallSides.Up) && cell.Y != height - 1)
+        if (!cell.CellWallSides.HasFlag(WallSides.Right))
+        {
+
+            result.Add(maze[cell.X + 1, cell.Y]);
+
+        }
+        if (!cell.CellWallSides.HasFlag(WallSides.Up))
         {
             result.Add(maze[cell.X, cell.Y + 1]);
-   
+
         }
-        if (cell.correspondingCell.CellWallSides.HasFlag(WallSides.Down) && cell.Y != 0)
+        if (!cell.CellWallSides.HasFlag(WallSides.Down))
         {
 
             result.Add(maze[cell.X, cell.Y - 1]);
@@ -213,13 +213,13 @@ public class AStarPathfinding
 
     public void CalculateHCost(PathfindingCell cell, PathfindingCell endPoint)
     {
-        if(cell == null || endPoint == null)
+        if (cell == null || endPoint == null)
         {
             Debug.Log("Null Object");
         }
         else
         {
-            cell.hValue = (endPoint.X - cell.X) + (endPoint.Y - cell.Y);
+            cell.hValue = (cell.X - endPoint.X) + (cell.Y - endPoint.Y);
         }
     }
 
@@ -227,5 +227,6 @@ public class AStarPathfinding
     {
         cell.fValue = cell.hValue + cell.gValue;
     }
-}   
+    
+}
 

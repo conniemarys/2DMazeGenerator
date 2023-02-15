@@ -54,7 +54,7 @@ public static class MazeGenerator
         return maze;
     }
 
-    public static List<Cell> Generate(int width, int height)
+    public static (List<Cell>, WallSides[,]) Generate(int width, int height)
     {
         WallSides[,] maze = new WallSides[width, height];
         WallSides initial = WallSides.Left | WallSides.Right | WallSides.Up | WallSides.Down;
@@ -66,10 +66,15 @@ public static class MazeGenerator
             }
         }
 
-        return ApplyRecursiveBacktracker(maze, width, height);
+        WallSides[,] newMaze = new WallSides[width, height];
+        List<Cell> list = new List<Cell>();
+
+        (list, newMaze) = ApplyRecursiveBacktracker(maze, width, height);
+
+        return (list, newMaze);
     }
 
-    private static List<Cell> ApplyRecursiveBacktracker(WallSides[,] maze, int width, int height)
+    private static (List<Cell>, WallSides[,]) ApplyRecursiveBacktracker(WallSides[,] maze, int width, int height)
     {
         var rnd = new System.Random(/*seed*/);
 
@@ -97,7 +102,7 @@ public static class MazeGenerator
                 prevNoNeighbours = false;
                 var visitedNeighbours = GetVisitedNeighbours(current, maze, width, height);
 
-                if(visitedNeighbours.Count > 0)
+                if (visitedNeighbours.Count > 0)
                 {
                     var randIndex = rnd.Next(0, visitedNeighbours.Count);
                     var randomVisitedNeighbour = visitedNeighbours[randIndex];
@@ -161,7 +166,7 @@ public static class MazeGenerator
             generateOrder.Add(cell);
         }
 
-        return generateOrder;
+        return (generateOrder, maze);
     }
 
     public static WallSides GetOppositeWall(WallSides wall)
