@@ -30,10 +30,14 @@ public class Node : MonoBehaviour
     [SerializeField]
     GameObject[] walls;
 
-    SpriteRenderer floor;
+    [SerializeField]
+    Color completed;
+    [SerializeField]
+    Color available;
+    [SerializeField]
+    Color visited;
 
-    private Node oldNode;
-
+    public SpriteRenderer floor;
 
     public Node()
     {
@@ -43,9 +47,10 @@ public class Node : MonoBehaviour
         Y = 0;
     }
 
-    private void Start()
+    public void Init()
     {
         this.floor = this.transform.Find("Square").GetComponent<SpriteRenderer>();
+
         Transform up = this.transform.Find("WallUp");
         Transform down = this.transform.Find("WallDown");
         Transform left = this.transform.Find("WallLeft");
@@ -56,16 +61,17 @@ public class Node : MonoBehaviour
 
     public void ChangePrefab()
     {
+
         switch (nodeState)
         {
             case NodeState.Available:
-                floor.color = Color.white;
+                floor.color = available;
                 break;
             case NodeState.Visited:
-                floor.color = Color.yellow;
+                floor.color = visited;
                 break;
             case NodeState.Completed:
-                floor.color = Color.blue;
+                floor.color = completed;
                 break;
             default:
                 break;

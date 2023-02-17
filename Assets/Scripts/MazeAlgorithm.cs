@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -9,19 +10,30 @@ public class MazeAlgorithm : MonoBehaviour
     public Node nodePrefab;
 
     [SerializeField]
+    public GameObject pathPrefab;
+
+    [SerializeField]
     public int width = 10;
     public int height = 10;
 
-    public void Start()
+    public Node[,] nodeMap;
+
+    AStarPathfinding aStar;
+
+    public void Awake()
     {
-        Camera.main.transform.position = new Vector3(width / 2, height / 2, - (height*width * 0.15f));
-        StartCoroutine(
-                MazeBacktracker(width, height));
+        Camera.main.transform.position = new Vector3(width / 2, height / 2, -10f);
+        Camera.main.orthographicSize = height * 0.7f;
+
+        aStar = new AStarPathfinding();
+
+        StartCoroutine(MazeBacktracker(width, height));
+
     }
 
     IEnumerator MazeBacktracker(int width, int height)
     {
-        Node[,] nodeMap = new Node[width, height];
+        nodeMap = new Node[width, height];
 
         //create the nodes
         for(int x = 0; x < width; x++)
@@ -31,6 +43,8 @@ public class MazeAlgorithm : MonoBehaviour
                 Node node = Instantiate(nodePrefab, new Vector2(x, y), Quaternion.identity, transform);
                 node.X = x;
                 node.Y = y;
+                node.Init();
+                node.ChangePrefab();
                 nodeMap[x, y] = node;
             }
         }
@@ -40,11 +54,10 @@ public class MazeAlgorithm : MonoBehaviour
 
         //Choosing start node at random
         currentPath.Add(nodeMap[Random.Range(0, width), Random.Range(0, height)]);
+
         currentPath[0].nodeState = NodeState.Visited;
 
         Node currentNode = currentPath[0];
-
-        yield return null;
 
         while(completedNodes.Count <= width*height)
         {
@@ -89,6 +102,10 @@ public class MazeAlgorithm : MonoBehaviour
                 }
             }
         }
+
+        List<PathfindingCell> path = aStar.AStar(nodeMap, width, height);
+        StartCoroutine(DrawPath(path));
+
     }
 
     private List<Node> FindNeighbours(Node currentNode, Node[,] nodeMap, int width, int height)
@@ -152,6 +169,16 @@ public class MazeAlgorithm : MonoBehaviour
         else
         {
             Debug.Log("Couldn't find wall in KnockDownwalls()");
+        }
+    }
+
+    IEnumerator DrawPath(List<PathfindingCell> path)
+    {
+        for (int x = path.Count - 1; x >= 0; x--)
+        {
+            GameObject circle = Instantiate(pathPrefab);
+            circle.transform.position = new Vector2(path[x].X, path[x].Y);
+            yield return new WaitForSeconds(0.05f);
         }
     }
 }

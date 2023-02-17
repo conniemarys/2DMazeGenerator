@@ -8,21 +8,22 @@ using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class PathfindingCell
-{    public int X;
+{   
+    public int X;
     public int Y;
     public int gValue;
     public int hValue;
     public int fValue;
     public PathfindingCell prevCell;
-    public WallSides CellWallSides;
+    public NodeWalls walls;
 
-    public PathfindingCell(int X, int Y, WallSides cellWallSides)
+    public PathfindingCell(int X, int Y, Node node)
     {
         this.X = X;
         this.Y = Y;
         this.gValue = int.MaxValue;
         this.hValue = 0;
-        this.CellWallSides = cellWallSides;
+        this.walls = node.nodeWalls;
     }
 }
 
@@ -34,7 +35,7 @@ public class AStarPathfinding
     PathfindingCell startCell;
     public int count;
 
-    public List<PathfindingCell> AStar(WallSides[,] mazeArray, int inputWidth, int inputHeight)
+    public List<PathfindingCell> AStar(Node[,] mazeArray, int inputWidth, int inputHeight)
     {
         maze = new PathfindingCell[inputWidth, inputHeight];
 
@@ -47,14 +48,17 @@ public class AStarPathfinding
         }
 
         startCell = maze[0, 0];
+
         PathfindingCell endCell = maze[inputWidth - 1, inputHeight - 1];
 
-        //Debug.Log($"(1,0) at start of A*: {mazeArray[1, 0]}");
-        //Debug.Log($"(2,0) at start of A*: {mazeArray[2, 0]}");
-        //Debug.Log($"(6,6) at start of A*: {mazeArray[6, 6]}");
-        //Debug.Log($"(7,6) at start of A*: {mazeArray[7, 6]}");
+        List<PathfindingCell> path = FindPath(maze, startCell, endCell);
 
-        return FindPath(maze, startCell, endCell);
+        foreach (PathfindingCell node in path)
+        {
+            Debug.Log(node.X + ", " + node.Y);
+        }
+
+        return path;
     }
 
     public List<PathfindingCell> FindPath(PathfindingCell[,] maze, PathfindingCell startCell, PathfindingCell endCell)
@@ -77,17 +81,6 @@ public class AStarPathfinding
 
         var path = RecursiveCall(cellsToExplore, exploredCells, endCell);
 
-        /* if (path != null)
-        {
-            foreach (PathfindingCell cell in path)
-            {
-                Debug.Log($"{cell.X}, {cell.Y}");
-            }
-        }
-        else
-        {
-            Debug.Log("No possible path");
-        } */
         return path;
     }
 
@@ -99,7 +92,6 @@ public class AStarPathfinding
 
             if (currentCell == endCell)
             {
-                //Debug.Log("Reached successful end");
                 return CalculatePath(endCell);
             }
 
@@ -141,14 +133,11 @@ public class AStarPathfinding
 
                 }
                 
-                //Debug.Log($"Cell: [{currentCell.X}, {currentCell.Y}] with walls {currentCell.CellWallSides} found {neighbours.Count} neighbours, {validCount} valid. Cells to Explore: {cellsToExplore.Count}");
-
             }
             
             return RecursiveCall(cellsToExplore, exploredCells, endCell);
         }
 
-        Debug.Log($"Failed count check. return null. Cells to Explore: {cellsToExplore.Count}");
         return null;
 
     }
@@ -186,33 +175,33 @@ public class AStarPathfinding
         return lowestFCost;
     }
 
-
     public List<PathfindingCell> FindNeighbours(PathfindingCell cell)
     {
         List<PathfindingCell> result = new List<PathfindingCell>();
 
-        if (!cell.CellWallSides.HasFlag(WallSides.Left))
+        if (!cell.walls.HasFlag(NodeWalls.Left))
         {
             result.Add(maze[cell.X - 1, cell.Y]);
 
         }
-        if (!cell.CellWallSides.HasFlag(WallSides.Right))
+        if (!cell.walls.HasFlag(NodeWalls.Right))
         {
 
             result.Add(maze[cell.X + 1, cell.Y]);
 
         }
-        if (!cell.CellWallSides.HasFlag(WallSides.Up))
+        if (!cell.walls.HasFlag(NodeWalls.Up))
         {
             result.Add(maze[cell.X, cell.Y + 1]);
 
         }
-        if (!cell.CellWallSides.HasFlag(WallSides.Down))
+        if (!cell.walls.HasFlag(NodeWalls.Down))
         {
 
             result.Add(maze[cell.X, cell.Y - 1]);
 
         }
+
         return result;
     }
 
