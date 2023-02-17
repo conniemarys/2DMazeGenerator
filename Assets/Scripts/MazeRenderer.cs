@@ -23,9 +23,13 @@ public class MazeRenderer : MonoBehaviour
     [SerializeField]
     private Transform floorPrefab = null;
 
+    [SerializeField]
+    private Transform pathPrefab;
+
     private AStarPathfinding pathfindingManager;
 
     private System.Random random;
+    private MazeAlgorithm mazeAlgorithm;
 
     public class Changes
     {
@@ -43,7 +47,8 @@ public class MazeRenderer : MonoBehaviour
 
     private void Start()
     {
-        pathfindingManager = new AStarPathfinding();
+
+        /*pathfindingManager = new AStarPathfinding();
 
         random = new System.Random();
 
@@ -57,13 +62,15 @@ public class MazeRenderer : MonoBehaviour
 
         (mazeOrder, aStarMap) = MazeGenerator.Generate(width, height);
 
-        StartCoroutine(Draw(mazeOrder));
+        //List<PathfindingCell> path = pathfindingManager.AStar(aStarMap, width, height);
+        List<PathfindingCell> path = new List<PathfindingCell>();
 
-        pathfindingManager.AStar(aStarMap, width, height);
+        StartCoroutine(Draw(mazeOrder, path));*/
+
     }
 
 
-    IEnumerator Draw(List<Cell> maze)
+    IEnumerator Draw(List<Cell> maze, List<PathfindingCell> path)
     {
         /* for (int x = 0; x < width; x++)
         {
@@ -146,6 +153,14 @@ public class MazeRenderer : MonoBehaviour
 
             var floor = Instantiate(floorPrefab, transform);
             floor.position = new Vector3(cellPosition.X, cellPosition.Y, 1);
+
+            yield return new WaitForSeconds(0.02f);
+        }
+
+        for(int i = path.Count - 1; i >= 0; i--)
+        {
+            var step = Instantiate(pathPrefab, transform) as Transform;
+            step.position = new Vector3(path[i].X, path[i].Y, 0.9f);
 
             yield return new WaitForSeconds(0.02f);
         }

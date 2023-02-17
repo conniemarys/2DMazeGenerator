@@ -49,6 +49,11 @@ public class AStarPathfinding
         startCell = maze[0, 0];
         PathfindingCell endCell = maze[inputWidth - 1, inputHeight - 1];
 
+        //Debug.Log($"(1,0) at start of A*: {mazeArray[1, 0]}");
+        //Debug.Log($"(2,0) at start of A*: {mazeArray[2, 0]}");
+        //Debug.Log($"(6,6) at start of A*: {mazeArray[6, 6]}");
+        //Debug.Log($"(7,6) at start of A*: {mazeArray[7, 6]}");
+
         return FindPath(maze, startCell, endCell);
     }
 
@@ -72,7 +77,7 @@ public class AStarPathfinding
 
         var path = RecursiveCall(cellsToExplore, exploredCells, endCell);
 
-        if (path != null)
+        /* if (path != null)
         {
             foreach (PathfindingCell cell in path)
             {
@@ -82,7 +87,7 @@ public class AStarPathfinding
         else
         {
             Debug.Log("No possible path");
-        }
+        } */
         return path;
     }
 
@@ -94,7 +99,7 @@ public class AStarPathfinding
 
             if (currentCell == endCell)
             {
-                Debug.Log("Reached successful end");
+                //Debug.Log("Reached successful end");
                 return CalculatePath(endCell);
             }
 
@@ -136,7 +141,7 @@ public class AStarPathfinding
 
                 }
                 
-                Debug.Log($"Cell: [{currentCell.X}, {currentCell.Y}] with walls {currentCell.CellWallSides} found {neighbours.Count} neighbours, {validCount} valid. Cells to Explore: {cellsToExplore.Count}");
+                //Debug.Log($"Cell: [{currentCell.X}, {currentCell.Y}] with walls {currentCell.CellWallSides} found {neighbours.Count} neighbours, {validCount} valid. Cells to Explore: {cellsToExplore.Count}");
 
             }
             
