@@ -20,6 +20,9 @@ public class MazeAlgorithm : MonoBehaviour
 
     AStarPathfinding aStar;
 
+    [SerializeField]
+    float speed = 0f;
+
     public void Awake()
     {
         Camera.main.transform.position = new Vector3(width / 2, height / 2, -10f);
@@ -78,7 +81,7 @@ public class MazeAlgorithm : MonoBehaviour
 
                 currentNode = nextNode;
 
-                yield return new WaitForSeconds(0.05f);
+                yield return new WaitForSeconds(speed);
             }
             else if(neighbours.Count == 0)
             {
@@ -98,7 +101,7 @@ public class MazeAlgorithm : MonoBehaviour
                 {
                     currentNode = currentPath[currentPath.Count - 1];
 
-                    yield return new WaitForSeconds(0.05f);
+                    yield return new WaitForSeconds(speed);
                 }
             }
         }
@@ -178,7 +181,7 @@ public class MazeAlgorithm : MonoBehaviour
         {
             GameObject circle = Instantiate(pathPrefab);
             circle.transform.position = new Vector2(path[x].X, path[x].Y);
-            yield return new WaitForSeconds(0.05f);
+            yield return new WaitForSeconds(speed);
         }
     }
 }
